@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_app/utils/constrain.dart';
+import 'package:grocery_app/views/item_details_screen.dart';
+import 'package:grocery_app/views/see_all_product.dart';
 import 'package:grocery_app/widget/grocery_items.dart';
 import 'package:grocery_app/widget/my_search_bar.dart';
 
@@ -219,16 +221,21 @@ setState(() {
                   child: Row(
                     children: [
                       Text(
-                        "Category",
+                        "Find By Category",
                         style: TextStyle(
                           fontSize: 23,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       Spacer(),
-                      Text(
-                        "See All",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => SeeAllProduct(),));
+                        },
+                        child: Text(
+                          "See All",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                       ),
                       Icon(Icons.keyboard_arrow_right, color: Colors.black),
                     ],
@@ -252,7 +259,9 @@ setState(() {
                 {
                   return Padding(padding: EdgeInsets.only(left: 15,top: 15,bottom: 15),
                   child: GestureDetector(
-                    onTap: (){},
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ItemDetailsScreen(grocery: groceryItem[index]),));
+                    },
                     child: GroceryItems(grocery: groceryItem[index]),
                   ),
                   );

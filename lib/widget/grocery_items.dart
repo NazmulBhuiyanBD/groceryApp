@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:grocery_app/provider/cart_provider.dart';
+import 'package:grocery_app/provider/favourite_provider.dart';
 import 'package:grocery_app/utils/constrain.dart';
 import 'package:grocery_app/widget/unit_conversion.dart';
+import 'package:provider/provider.dart';
 
 class GroceryItems extends StatelessWidget {
   const GroceryItems({super.key,required this.grocery});
@@ -8,6 +11,8 @@ class GroceryItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider=Provider.of<FavouriteProvider>(context);
+    CartProvider cartProvider=Provider.of<CartProvider>(context);
     return Container(
       width: 192,
       height: 290,
@@ -77,7 +82,7 @@ class GroceryItems extends StatelessWidget {
             ],
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Align(
                 alignment: Alignment.bottomLeft,
@@ -93,8 +98,12 @@ class GroceryItems extends StatelessWidget {
                     )
                   ),
                   child: GestureDetector(
-                    onTap: (){},
-                    child: Icon(Icons.favorite,color:  Colors.white,size: 27,),
+                    onTap: (){
+                      provider.toggleFavourite(grocery);
+                    },
+                    child: Icon(
+                      provider.isExit(grocery)?Icons.favorite:Icons.favorite_border,
+                      color:provider.isExit(grocery)?Colors.red:  Colors.white,size: 27,),
                   ),
                 ),
               ),
@@ -112,7 +121,9 @@ class GroceryItems extends StatelessWidget {
                     )
                   ),
                   child: GestureDetector(
-                    onTap: (){},
+                    onTap: (){
+                      cartProvider.addCart(grocery);
+                    },
                     child: Icon(Icons.shopping_cart,color: Colors.white,size: 27,),
                   ),
                 ),

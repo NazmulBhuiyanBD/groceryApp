@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_app/utils/constrain.dart';
+import 'package:grocery_app/views/favourite_screen.dart';
 import 'package:grocery_app/views/grocery_home_page.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -15,11 +16,7 @@ class _GroceryMainPageState extends State<GroceryMainPage> {
   int selectedIndex=0;
   final List pages=[
     GroceryHomePage(),
-    const Scaffold(
-      body: Center(
-        child: Text("Favourite"),
-      ),
-    ),
+    FavouriteScreen(),
     const Scaffold(
       body: Center(
         child: Text("Cart"),
