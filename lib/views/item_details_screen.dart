@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:grocery_app/provider/cart_provider.dart';
 import 'package:grocery_app/utils/constrain.dart';
+import 'package:grocery_app/widget/Cart_Icon.dart';
 import 'package:grocery_app/widget/unit_conversion.dart';
+import 'package:provider/provider.dart';
 
 class ItemDetailsScreen extends StatelessWidget {
   const ItemDetailsScreen({super.key, required this.grocery});
@@ -8,13 +11,19 @@ class ItemDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    CartProvider cartProvider=Provider.of<CartProvider>(context);
     return Scaffold(
       backgroundColor: secondarycolor,
       appBar: AppBar(
         backgroundColor: secondarycolor,
         elevation: 0,
         centerTitle: true,
-        title: Text("Product Details", style: TextStyle(color: Colors.black)),
+        title: Text("Product Details", style: TextStyle(color: Colors.black),),
+        actions: [
+          IconButton(onPressed: (){}, icon: CartIcon(),
+          ),
+          SizedBox(width: 10,)
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -119,7 +128,7 @@ class ItemDetailsScreen extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      width: 130,
+                      width: 180,
                       height: 50,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
@@ -127,7 +136,9 @@ class ItemDetailsScreen extends StatelessWidget {
                         color: primarycolor,
                       ),
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          cartProvider.addCart(grocery);
+                        },
                         child: Text(
                           "Add to Cart",
                           style: TextStyle(

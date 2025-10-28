@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:grocery_app/utils/constrain.dart';
 import 'package:grocery_app/views/item_details_screen.dart';
 import 'package:grocery_app/views/see_all_product.dart';
+import 'package:grocery_app/widget/Cart_Icon.dart';
 import 'package:grocery_app/widget/grocery_items.dart';
 import 'package:grocery_app/widget/my_search_bar.dart';
 
@@ -99,10 +100,7 @@ setState(() {
                     ),
                   ),
                   Spacer(),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.shopping_cart_outlined, size: 27),
-                  ),
+                  CartIcon(),
                 ],
               ),
             ),
