@@ -127,7 +127,7 @@ class _CartScreenState extends State<CartScreen> {
             ? const Center(child: CircularProgressIndicator())
             : carts.isEmpty
                 ? const Center(
-                    child: Text("Your cart is empty"),
+                    child: Text("Your cart is empty",style: TextStyle(fontSize: 18),),
                   )
                 : Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),

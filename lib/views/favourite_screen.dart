@@ -28,9 +28,8 @@ class _FavouriteScreenState extends State<FavouriteScreen> {
         ),),
       ),
       body: favoriteItems.isEmpty?Center(
-        child: Text("No Favorite Yet",style: TextStyle(
+        child: Text("No favorite items found",style: TextStyle(
           fontSize: 18,
-          fontWeight:FontWeight.bold,
         ),),
       ):ListView.builder(
         itemCount: favoriteItems.length,
