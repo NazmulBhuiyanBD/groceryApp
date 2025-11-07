@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:grocery_app/services/auth.dart';
 import 'package:grocery_app/utils/constrain.dart';
@@ -16,50 +17,90 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final AuthService _authService = AuthService();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _loading = false;
 
-Future<void> _handleRegister() async {
-  final email = _emailController.text.trim();
-  final password = _passwordController.text.trim();
+  Future<void> _handleRegister() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
 
-  if (email.isEmpty || password.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Please fill in all fields")),
-    );
-    return;
-  }
-
-  setState(() => _loading = true);
-
-  try {
-    final user = await _authService.registerWithEmail(email, password);
-
-    if (user != null) {
-      // 🟩 Create user document in Firestore
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'email': email,
-        'name': '',
-        'phone': '',
-        'address': '',
-        'photoURL': null,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      // Navigate to main page
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const GroceryMainPage()),
+    if (email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in all fields")),
       );
+      return;
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Registration failed: $e")),
-    );
-  } finally {
-    setState(() => _loading = false);
-  }
-}
 
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Passwords do not match")),
+      );
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    try {
+      final auth = firebase_auth.FirebaseAuth.instance;
+
+      // ✅ Attempt to register user
+      final userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final user = userCredential.user;
+      if (user != null) {
+        // 🟩 Create Firestore user document
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'email': email,
+          'name': '',
+          'phone': '',
+          'address': '',
+          'photoURL': null,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        if (!mounted) return;
+
+        // ✅ Show success message first
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("✅ Registration successful! Redirecting to login..."),
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // 🕒 Wait for 2 seconds before navigating
+        await Future.delayed(const Duration(seconds: 2));
+
+        // 🔄 Redirect to Login Screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      }
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      String message = "Registration failed.";
+      if (e.code == 'email-already-in-use') {
+        message = "⚠️ This email is already registered.";
+      } else if (e.code == 'invalid-email') {
+        message = "Invalid email format.";
+      } else if (e.code == 'weak-password') {
+        message = "Password should be at least 6 characters.";
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Registration failed: $e")),
+      );
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,15 +117,12 @@ Future<void> _handleRegister() async {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            Image.asset(
-              "assets/icons/logoIcon.png",
-              height: 180,
-            ),
+            Image.asset("assets/icons/logoIcon.png", height: 180),
             const SizedBox(height: 40),
-            Text(
+            const Text(
               "Quality and freshness you can trust",
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 color: Colors.black,
                 height: 1.3,
@@ -92,6 +130,8 @@ Future<void> _handleRegister() async {
               ),
             ),
             const SizedBox(height: 30),
+
+            // Email
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
@@ -105,6 +145,7 @@ Future<void> _handleRegister() async {
             ),
             const SizedBox(height: 15),
 
+            // Password
             TextField(
               controller: _passwordController,
               obscureText: true,
@@ -116,8 +157,23 @@ Future<void> _handleRegister() async {
                 ),
               ),
             ),
+            const SizedBox(height: 15),
+
+            // Confirm Password
+            TextField(
+              controller: _confirmPasswordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: "Confirm Password",
+                prefixIcon: Icon(Icons.lock_person_outlined),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15)),
+                ),
+              ),
+            ),
             const SizedBox(height: 25),
 
+            // Register Button
             _loading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
@@ -138,9 +194,9 @@ Future<void> _handleRegister() async {
                       ),
                     ),
                   ),
-
             const SizedBox(height: 20),
 
+            // Navigate to login
             TextButton(
               onPressed: () {
                 Navigator.push(
