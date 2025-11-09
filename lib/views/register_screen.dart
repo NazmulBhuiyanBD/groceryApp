@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:grocery_app/services/auth.dart';
 import 'package:grocery_app/utils/constrain.dart';
-import 'package:grocery_app/views/grocery_main_page.dart';
 import 'package:grocery_app/views/login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -59,6 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'phone': '',
           'address': '',
           'photoURL': null,
+          'isAdmin': false, // 👈 default role for new users
           'createdAt': FieldValue.serverTimestamp(),
         });
 
@@ -131,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 30),
 
-            // Email
+            // Email Field
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
@@ -145,7 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 15),
 
-            // Password
+            // Password Field
             TextField(
               controller: _passwordController,
               obscureText: true,
@@ -159,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 15),
 
-            // Confirm Password
+            // Confirm Password Field
             TextField(
               controller: _confirmPasswordController,
               obscureText: true,
@@ -173,7 +173,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 25),
 
-            // Register Button
             _loading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
@@ -196,10 +195,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
             const SizedBox(height: 20),
 
-            // Navigate to login
             TextButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (_) => const LoginScreen()),
                 );
